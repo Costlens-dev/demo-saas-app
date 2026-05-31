@@ -1,0 +1,14 @@
+{
+  "name": "demo-saas-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "@prisma/client": "^5.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "jest": "^29.7.0",
+    "prisma": "^5.14.0"
+  }
+}
