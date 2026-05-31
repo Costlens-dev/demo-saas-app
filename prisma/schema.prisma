@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("member")
+  teamId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  team      Team?    @relation(fields: [teamId], references: [id])
+  projects  Project[]
+  @@index([email])
+  @@index([teamId])
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  plan      String   @default("free")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  members   User[]
+  projects  Project[]
+  @@index([slug])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  teamId      String
+  ownerId     String
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  team        Team     @relation(fields: [teamId], references: [id])
+  owner       User     @relation(fields: [ownerId], references: [id])
+  @@index([teamId])
+  @@index([ownerId])
+}
