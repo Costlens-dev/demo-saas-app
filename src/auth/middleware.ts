@@ -1,34 +1,28 @@
-/**
- * Authentication Middleware
- * Validates JWT tokens and attaches user context to requests
- */
-import { Request, Response, NextFunction } from "express";
 import { jwtService } from "./jwt";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+export function authMiddleware(req: any, res: any, next: any) {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Missing or invalid authorization header" });
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
-
   const token = authHeader.substring(7);
   try {
     const payload = jwtService.verifyAccessToken(token);
-    (req as any).user = payload;
+    if (!payload || !payload.userId) {
+      return res.status(401).json({ error: "Invalid token payload" });
+    }
+    req.user = payload;
     next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid or expired token" });
+  } catch {
+    return res.status(401).json({ error: "Token expired or invalid" });
   }
 }
 
-export function optionalAuth(req: Request, res: Response, next: NextFunction) {
+export function optionalAuth(req: any, res: any, next: any) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return next();
-  
   try {
-    const token = authHeader.substring(7);
-    const payload = jwtService.verifyAccessToken(token);
-    (req as any).user = payload;
+    req.user = jwtService.verifyAccessToken(authHeader.substring(7));
   } catch {}
   next();
 }
